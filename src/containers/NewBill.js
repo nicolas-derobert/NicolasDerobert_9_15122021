@@ -15,31 +15,72 @@ export default class NewBill {
     this.billId = null
     new Logout({ document, localStorage, onNavigate })
   }
-  handleChangeFile = e => {
-    e.preventDefault()
-    const file = this.document.querySelector(`input[data-testid="file"]`).files[0]
-    const filePath = e.target.value.split(/\\/g)
-    const fileName = filePath[filePath.length-1]
-    const formData = new FormData()
-    const email = JSON.parse(localStorage.getItem("user")).email
-    formData.append('file', file)
-    formData.append('email', email)
+  // handleChangeFile = e => {
+  //   e.preventDefault()
+  //   const file = this.document.querySelector(`input[data-testid="file"]`).files[0]
+  //   const filePath = e.target.value.split(/\\/g)
+  //   const fileName = filePath[filePath.length-1]
+  //   const formData = new FormData()
+  //   const email = JSON.parse(localStorage.getItem("user")).email
+  //   formData.append('file', file)
+  //   formData.append('email', email)
 
-    this.store
-      .bills()
-      .create({
-        data: formData,
-        headers: {
-          noContentType: true
-        }
-      })
-      .then(({fileUrl, key}) => {
-        console.log(fileUrl)
-        this.billId = key
-        this.fileUrl = fileUrl
-        this.fileName = fileName
-      }).catch(error => console.error(error))
-  }
+  //   this.store
+  //     .bills()
+  //     .create({
+  //       data: formData,
+  //       headers: {
+  //         noContentType: true
+  //       }
+  //     })
+  //     .then(({fileUrl, key}) => {
+  //       console.log(fileUrl)
+  //       this.billId = key
+  //       this.fileUrl = fileUrl
+  //       this.fileName = fileName
+  //     }).catch(error => console.error(error))
+  // }
+  handleChangeFile = (e) => {
+    e.preventDefault();
+    const file = this.document.querySelector(`input[data-testid="file"]`)
+      .files[0];
+    const filePath = e.target.value.split(/\\/g);
+    const fileNamePre = filePath[filePath.length - 1];
+    const fileName = filePath[filePath.length - 1];
+    const formData = new FormData();
+    const email = JSON.parse(localStorage.getItem("user")).email;
+    let ErrorOnFile = false;
+    if (
+      fileNamePre.substr(fileNamePre.length - 3) == "png" ||
+      fileNamePre.substr(fileNamePre.length - 3) == "jpg" ||
+      fileNamePre.substr(fileNamePre.length - 4) == "jpeg"
+    ) {
+      formData.append("file", file);
+    } else {
+      window.alert(
+        "Veuillez sélectionner un fichier valide. Vous devez sélectionner un fichier de type image"
+      );
+      ErrorOnFile = true;
+    }
+    if (!ErrorOnFile) {
+      formData.append("email", email);
+
+      this.store
+        .bills()
+        .create({
+          data: formData,
+          headers: {
+            noContentType: true,
+          },
+        })
+        .then(({ fileUrl, key }) => {
+          this.billId = key;
+          this.fileUrl = fileUrl;
+          this.fileName = fileName;
+        })
+        .catch((error) => console.error(error));
+    }
+  };
   handleSubmit = e => {
     e.preventDefault()
     console.log('e.target.querySelector(`input[data-testid="datepicker"]`).value', e.target.querySelector(`input[data-testid="datepicker"]`).value)
